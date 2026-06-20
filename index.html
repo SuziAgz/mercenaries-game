@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гильдия Наёмников</title>
+    <title>Guild of Mercenaries</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -17,59 +19,143 @@
             color: #e0e0e0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 15px;
+            padding: 10px;
         }
 
         .game-container {
             width: 100%;
             max-width: 450px;
-            background: #1e1e1e;
+            background: #1a1a1a;
             border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.7);
             padding: 20px;
-            border: 1px solid #2d2d2d;
+            border: 1px solid #2c2c2c;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             color: #ffc107;
             text-align: center;
             margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Стили формы создания */
+        /* ДИНАМИЧЕСКИЙ КОШЕЛЕК */
+        .header-wallet {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .wallet-top {
+            display: flex;
+            align-items: center;
+            background: #252525;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #383838;
+            cursor: pointer;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .wallet-top:hover {
+            background: #2d2d2d;
+        }
+
+        .coin-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), 0 0 4px rgba(0,0,0,0.2);
+        }
+
+        /* Цвета монет без текста */
+        .coin-plat { background: radial-gradient(circle, #e2f6ff, #a5d8f3); border: 1px solid #bce3f7; }
+        .coin-gold { background: radial-gradient(circle, #fff176, #fbc02d); border: 1px solid #fdd835; }
+        .coin-silv { background: radial-gradient(circle, #f5f5f5, #9e9e9e); border: 1px solid #bdbdbd; }
+        .coin-copp { background: radial-gradient(circle, #ffa726, #a64f00); border: 1px solid #fb8c00; }
+
+        .wallet-amount {
+            font-weight: bold;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .arrow-down {
+            font-size: 10px;
+            color: #888;
+            transition: transform 0.2s;
+        }
+
+        .arrow-down.open {
+            transform: rotate(180deg);
+        }
+
+        .wallet-dropdown {
+            background: #252525;
+            border: 1px solid #383838;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+            min-width: 110px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ЭКРАН СОЗДАНИЯ */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             color: #aaa;
             margin-bottom: 6px;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-option {
             flex: 1;
-            padding: 10px;
-            background: #2a2a2a;
-            border: 2px solid #3a3a3a;
-            color: #fff;
+            padding: 11px;
+            background: #262626;
+            border: 2px solid #363636;
+            color: #ccc;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
 
         .btn-option.active {
@@ -80,39 +166,42 @@
 
         select, input[type="range"] {
             width: 100%;
-            padding: 10px;
-            background: #2a2a2a;
-            border: 2px solid #3a3a3a;
+            padding: 11px;
+            background: #262626;
+            border: 2px solid #363636;
             color: #fff;
             border-radius: 8px;
             outline: none;
+            font-weight: 500;
         }
 
         .range-container {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .range-value {
             font-size: 18px;
             font-weight: bold;
             color: #ffc107;
-            min-width: 30px;
+            min-width: 25px;
+            text-align: center;
         }
 
-        /* Главная кнопка */
         .btn-primary {
             width: 100%;
             padding: 14px;
             background: #ffc107;
             border: none;
             color: #121212;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
             transition: background 0.2s;
         }
 
@@ -120,43 +209,76 @@
             background: #e0a800;
         }
 
-        /* Стили игрового экрана */
-        .character-card {
-            background: #252525;
-            border-radius: 10px;
+        /* ИГРОВОЙ ЭКРАН */
+        .character-overview {
+            background: #222;
+            border-radius: 12px;
             padding: 15px;
+            margin-top: 35px;
             margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
+            border: 1px solid #2d2d2d;
         }
 
-        .character-card p {
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .character-card span {
+        .char-title {
+            font-size: 16px;
+            font-weight: bold;
             color: #fff;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #3a3a3a;
+            padding-bottom: 4px;
+        }
+
+        .char-meta {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        /* СЕТКА СЛОТОВ ЭКИПИРОВКИ */
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .equip-slot {
+            background: #1c1c1c;
+            border: 1px dashed #3a3a3a;
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .slot-name {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
             font-weight: bold;
         }
 
-        .wallet-box {
-            background: #252525;
-            border-radius: 10px;
-            padding: 15px;
+        .item-name {
+            font-size: 12px;
+            color: #ffb300;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-slot {
+            color: #444;
+            font-style: italic;
+        }
+
+        .placeholder-action {
+            background: #222;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .coin-list {
-            list-style: none;
-            margin-top: 10px;
-            text-align: left;
-            display: inline-block;
-        }
-
-        .coin-list li {
-            margin: 6px 0;
-            font-size: 16px;
+            border: 1px dashed #444;
+            margin-top: auto;
         }
     </style>
 </head>
@@ -164,149 +286,271 @@
 
     <div class="game-container">
         
-        <!-- ЭКРАН 1: СОЗДАНИЕ ПЕРСОНАЖА -->
+        <!-- УМНЫЙ ВЕРХНИЙ КОШЕЛЕК (СКРЫТ НА ЭКРАНЕ СОЗДАНИЯ) -->
+        <div id="game-wallet" class="header-wallet hidden">
+            <div class="wallet-top" onclick="toggleWallet()">
+                <span id="top-coin-icon" class="coin-icon"></span>
+                <span id="top-coin-amount" class="wallet-amount">0</span>
+                <span id="wallet-arrow" class="arrow-down">▼</span>
+            </div>
+            <div id="wallet-dropdown" class="wallet-dropdown hidden">
+                <div class="dropdown-item"><span class="coin-icon coin-plat"></span><span id="box-plat" style="color:#a5d8f3">0</span></div>
+                <div class="dropdown-item"><span class="coin-icon coin-gold"></span><span id="box-gold" style="color:#fbc02d">0</span></div>
+                <div class="dropdown-item"><span class="coin-icon coin-silv"></span><span id="box-silv" style="color:#9e9e9e">0</span></div>
+                <div class="dropdown-item"><span class="coin-icon coin-copp"></span><span id="box-copp" style="color:#ffa726">10</span></div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН СОЗДАНИЯ ПЕРСОНАЖА -->
         <div id="creation-screen">
-            <h2>Создание наёмника</h2>
+            <h2>Guild of Mercenaries</h2>
+            <h3 style="font-size: 14px; margin-top: -15px; color: #888;">Создание персонажа</h3>
             
-            <!-- Пол -->
             <div class="form-group">
-                <label>Пол</label>
+                <label>Пол наёмника</label>
                 <div class="btn-group">
                     <button type="button" class="btn-option active" onclick="setGender('Мужчина', this)">Мужчина</button>
                     <button type="button" class="btn-option" onclick="setGender('Женщина', this)">Женщина</button>
                 </div>
             </div>
 
-            <!-- Возраст -->
             <div class="form-group">
                 <label>Возраст</label>
                 <div class="range-container">
-                    <input type="range" id="age-input" min="18" max="60" value="25" oninput="updateAge(this.value)">
-                    <div class="range-value" id="age-val">25</div>
+                    <input type="range" id="age-input" min="18" max="60" value="23" oninput="updateAge(this.value)">
+                    <div class="range-value" id="age-val">23</div>
                 </div>
             </div>
 
-            <!-- Телосложение -->
             <div class="form-group">
                 <label>Телосложение</label>
                 <select id="body-input">
-                    <option value="Жилистое">Жилистое (Выносливый)</option>
-                    <option value="Крепкое">Крепкое (Атлет)</option>
-                    <option value="Плотное">Плотное (Тяжеловес)</option>
-                    <option value="Худощавое">Худощавое (Юркий)</option>
+                    <option value="Жилистое">Жилистое</option>
+                    <option value="Крепкое">Крепкое</option>
+                    <option value="Плотное">Плотное</option>
+                    <option value="Худощавое">Худощавое</option>
                 </select>
             </div>
 
-            <!-- Класс и стартовая одежда -->
             <div class="form-group">
-                <label>Класс и экипировка</label>
+                <label>Стартовое ремесло (Класс)</label>
                 <select id="class-input">
-                    <option value="Воин">Воин (Потёртый кожаный доспех)</option>
-                    <option value="Маг">Маг (Ученическая мантия)</option>
-                    <option value="Лучник">Лучник (Зелёный походный плащ)</option>
+                    <option value="Воин">Воин</option>
+                    <option value="Маг">Маг</option>
+                    <option value="Лучник">Лучник</option>
                 </select>
             </div>
 
-            <button class="btn-primary" onclick="startGame()">Начать путь</button>
+            <button class="btn-primary" onclick="createCharacter()">Создать наёмника</button>
         </div>
 
-        <!-- ЭКРАН 2: ИГРОВОЙ ПРОЦЕСС -->
+        <!-- ГЛАВНЫЙ ИГРОВОЙ ЭКРАН -->
         <div id="main-game-screen" class="hidden">
-            <h1>Гильдия Наёмников</h1>
-            
-            <!-- Карточка созданного персонажа -->
-            <div class="character-card">
-                <p>Наёмник: <span id="char-gender">─</span>, <span id="char-age">─</span></p>
-                <p>Телосложение: <span id="char-body">─</span></p>
-                <p>Класс: <span id="char-class">─</span></p>
-                <p>Одежда: <span id="char-cloth">─</span></p>
+            <div class="character-overview">
+                <div class="char-title" id="display-class">Рядовой</div>
+                <div class="char-meta">
+                    <span id="display-gender">─</span>, <span id="display-age">─</span> | Телосложение: <span id="display-body">─</span>
+                </div>
+                
+                <h4 style="font-size: 11px; color:#ffc107; text-transform:uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Текущая Экипировка:</h4>
+                
+                <!-- Сетка из 10 слотов -->
+                <div class="equipment-grid">
+                    <div class="equip-slot"><span class="slot-name">Голова</span><span class="item-name" id="slot-head">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Нагрудник</span><span class="item-name" id="slot-chest">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Наручи</span><span class="item-name" id="slot-arms">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Обувь</span><span class="item-name" id="slot-boots">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Плащ</span><span class="item-name" id="slot-cloak">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Амулет</span><span class="item-name" id="slot-amulet">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Кольцо 1</span><span class="item-name" id="slot-ring1">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Кольцо 2</span><span class="item-name" id="slot-ring2">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Оружие 1</span><span class="item-name" id="slot-weapon1">─</span></div>
+                    <div class="equip-slot"><span class="slot-name">Оружие 2</span><span class="item-name" id="slot-weapon2">─</span></div>
+                </div>
             </div>
 
-            <div class="wallet-box">
-                <h3>Твой кошель:</h3>
-                <ul class="coin-list">
-                    <li>🪙 Медь: <span style="color:#ffc107">10</span></li>
-                    <li>🪙 Серебро: <span style="color:#fff">0</span></li>
-                    <li>🪙 Золото: <span style="color:#ffc107">0</span></li>
-                    <li>🪙 Платина: <span style="color:#fff">0</span></li>
-                </ul>
+            <div class="placeholder-action">
+                <p style="color: #666; font-size: 14px;">Персонаж готов к контрактам.</p>
+                <p style="color: #444; font-size: 12px; margin-top: 4px;">(Здесь будет доска объявлений)</p>
             </div>
-
-            <button class="btn-primary">Собрать травы (Алхимия)</button>
         </div>
 
     </div>
 
     <script>
-       // Базовый объект персонажа
-let character = {
-    gender: 'Мужчина',
-    age: 25,
-    body: 'Жилистое',
-    heroClass: 'Воин',
-    clothing: 'Потёртый кожаный доспех'
-};
+        // Игровая дата-модель
+        let gameState = {
+            hasCharacter: false,
+            gender: 'Мужчина',
+            age: 23,
+            body: 'Жилистое',
+            heroClass: 'Воин',
+            coins: { plat: 0, gold: 0, silv: 0, copp: 10 },
+            equipment: {
+                head: '─', chest: '─', arms: '─', boots: '─',
+                cloak: '─', amulet: '─', ring1: '─', ring2: '─',
+                weapon1: '─', weapon2: '─'
+            },
+            walletExpanded: false
+        };
 
-// Функция, которая срабатывает САМОЙ ПЕРВОЙ при загрузке страницы
-window.onload = function() {
-    // Проверяем, есть ли уже сохранённый персонаж в памяти устройства
-    const savedChar = localStorage.getItem('mercenary_player');
-    
-    if (savedChar) {
-        // Если нашли — загружаем его данные
-        character = JSON.parse(savedChar);
-        // Заполняем карточку на главном экране
-        displayCharacterData();
-        // Сразу показываем игровой экран, скрывая создание
-        document.getElementById('creation-screen').classList.add('hidden');
-        document.getElementById('main-game-screen').classList.remove('hidden');
-    }
-};
+        window.onload = function() {
+            const savedState = localStorage.getItem('mercenary_guild_state');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+                if (gameState.hasCharacter) {
+                    updateWalletUI();
+                    renderCharacter();
+                    
+                    // Восстанавливаем состояние выпадающего списка монет
+                    if (gameState.walletExpanded) {
+                        document.getElementById('wallet-dropdown').classList.remove('hidden');
+                        document.getElementById('wallet-arrow').classList.add('open');
+                    }
+                    
+                    document.getElementById('creation-screen').classList.add('hidden');
+                    document.getElementById('game-wallet').classList.remove('hidden');
+                    document.getElementById('main-game-screen').classList.remove('hidden');
+                }
+            }
+        };
 
-// Выбор пола в меню создания
-function setGender(gender, element) {
-    character.gender = gender;
-    const buttons = element.parentNode.querySelectorAll('.btn-option');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
-}
+        function saveGame() {
+            localStorage.setItem('mercenary_guild_state', JSON.stringify(gameState));
+        }
 
-// Обновление ползунка возраста
-function updateAge(val) {
-    document.getElementById('age-val').innerText = val;
-    character.age = val;
-}
+        function setGender(gender, element) {
+            gameState.gender = gender;
+            const buttons = element.parentNode.querySelectorAll('.btn-option');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
 
-// Заполнение текстовых полей на игровом экране
-function displayCharacterData() {
-    document.getElementById('char-gender').innerText = character.gender;
-    document.getElementById('char-age').innerText = character.age + ' лет';
-    document.getElementById('char-body').innerText = character.body;
-    document.getElementById('char-class').innerText = character.heroClass;
-    document.getElementById('char-cloth').innerText = character.clothing;
-}
+        function updateAge(val) {
+            document.getElementById('age-val').innerText = val;
+            gameState.age = val;
+        }
 
-// Кнопка «Начать путь»
-function startGame() {
-    character.body = document.getElementById('body-input').value;
-    character.heroClass = document.getElementById('class-input').value;
-    
-    if (character.heroClass === 'Воин') {
-        character.clothing = 'Потёртый кожаный доспех';
-    } else if (character.heroClass === 'Маг') {
-        character.clothing = 'Ученическая мантия';
-    } else if (character.heroClass === 'Лучник') {
-        character.clothing = 'Зелёный походный плащ';
-    }
+        // Переключение выпадающего кошелька
+        function toggleWallet() {
+            const dropdown = document.getElementById('wallet-dropdown');
+            const arrow = document.getElementById('wallet-arrow');
+            const isHidden = dropdown.classList.toggle('hidden');
+            
+            if (isHidden) {
+                arrow.classList.remove('open');
+                gameState.walletExpanded = false;
+            } else {
+                arrow.classList.add('open');
+                gameState.walletExpanded = true;
+            }
+            saveGame();
+        }
 
-    // Сохраняем персонажа в LocalStorage, превращая объект в строку
-    localStorage.setItem('mercenary_player', JSON.stringify(character));
+        // Логика расчета отображения старшей монеты в углу
+        function updateWalletUI() {
+            document.getElementById('box-plat').innerText = gameState.coins.plat;
+            document.getElementById('box-gold').innerText = gameState.coins.gold;
+            document.getElementById('box-silv').innerText = gameState.coins.silv;
+            document.getElementById('box-copp').innerText = gameState.coins.copp;
 
-    // Отображаем и переключаем экран
-    displayCharacterData();
-    document.getElementById('creation-screen').classList.add('hidden');
-    document.getElementById('main-game-screen').classList.remove('hidden');
-}
+            let topClass = 'coin-copp';
+            let topAmount = gameState.coins.copp;
+
+            // Ищем самую дорогую монету, у которой баланс > 0
+            if (gameState.coins.plat > 0) {
+                topClass = 'coin-plat';
+                topAmount = gameState.coins.plat;
+            } else if (gameState.coins.gold > 0) {
+                topClass = 'coin-gold';
+                topAmount = gameState.coins.gold;
+            } else if (gameState.coins.silv > 0) {
+                topClass = 'coin-silv';
+                topAmount = gameState.coins.silv;
+            } else {
+                topClass = 'coin-copp';
+                topAmount = gameState.coins.copp;
+            }
+
+            const iconEl = document.getElementById('top-coin-icon');
+            iconEl.className = 'coin-icon ' + topClass;
+            document.getElementById('top-coin-amount').innerText = topAmount;
+        }
+
+        function renderCharacter() {
+            document.getElementById('display-class').innerText = gameState.heroClass;
+            document.getElementById('display-gender').innerText = gameState.gender;
+            document.getElementById('display-age').innerText = gameState.age + ' лет';
+            document.getElementById('display-body').innerText = gameState.body;
+
+            // Отрисовка слотов шмота
+            document.getElementById('slot-head').innerText = gameState.equipment.head;
+            document.getElementById('slot-chest').innerText = gameState.equipment.chest;
+            document.getElementById('slot-arms').innerText = gameState.equipment.arms;
+            document.getElementById('slot-boots').innerText = gameState.equipment.boots;
+            document.getElementById('slot-cloak').innerText = gameState.equipment.cloak;
+            document.getElementById('slot-amulet').innerText = gameState.equipment.amulet;
+            document.getElementById('slot-ring1').innerText = gameState.equipment.ring1;
+            document.getElementById('slot-ring2').innerText = gameState.equipment.ring2;
+            document.getElementById('slot-weapon1').innerText = gameState.equipment.weapon1;
+            document.getElementById('slot-weapon2').innerText = gameState.equipment.weapon2;
+            
+            // Если слот пустой (равен "─"), добавим ему блеклый класс визуально
+            const slots = ['head', 'chest', 'arms', 'boots', 'cloak', 'amulet', 'ring1', 'ring2', 'weapon1', 'weapon2'];
+            slots.forEach(s => {
+                const el = document.getElementById('slot-' + s);
+                if (el.innerText === '─') {
+                    el.className = 'item-name empty-slot';
+                } else {
+                    el.className = 'item-name';
+                }
+            });
+        }
+
+        function createCharacter() {
+            gameState.body = document.getElementById('body-input').value;
+            gameState.heroClass = document.getElementById('class-input').value;
+            gameState.hasCharacter = true;
+
+            // Раздаем дешевый стартовый набор по классам
+            if (gameState.heroClass === 'Воин') {
+                gameState.equipment.head = 'Рваный капюшон';
+                gameState.equipment.chest = 'Потертая кожанка';
+                gameState.equipment.arms = 'Обноски наемника';
+                gameState.equipment.boots = 'Старые сапоги';
+                gameState.equipment.weapon1 = 'Ржавый гладиус';
+                gameState.equipment.weapon2 = 'Треснувший щит';
+            } else if (gameState.heroClass === 'Маг') {
+                gameState.equipment.head = '─';
+                gameState.equipment.chest = 'Ученическая мантия';
+                gameState.equipment.arms = 'Тканевые поручи';
+                gameState.equipment.boots = 'Простые сандалии';
+                gameState.equipment.weapon1 = 'Старый посох';
+                gameState.equipment.weapon2 = '─';
+            } else if (gameState.heroClass === 'Лучник') {
+                gameState.equipment.head = 'Бандана охотника';
+                gameState.equipment.chest = 'Походный плащ';
+                gameState.equipment.arms = 'Кожаные наручи';
+                gameState.equipment.boots = 'Мягкие чуни';
+                gameState.equipment.weapon1 = 'Простой лук';
+                gameState.equipment.weapon2 = 'Колчан стрел';
+            }
+
+            // Остальные слоты пустые по умолчанию
+            gameState.equipment.cloak = '─';
+            gameState.equipment.amulet = '─';
+            gameState.equipment.ring1 = '─';
+            gameState.equipment.ring2 = '─';
+
+            updateWalletUI();
+            renderCharacter();
+            saveGame();
+
+            // Показываем интерфейсы
+            document.getElementById('creation-screen').classList.add('hidden');
+            document.getElementById('game-wallet').classList.remove('hidden');
+            document.getElementById('main-game-screen').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
