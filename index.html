@@ -2,210 +2,100 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Guild of Mercenaries - Character Creation</title>
+    <title>Guild of Mercenaries</title>
     <style>
-        /* ========================================= */
-        /* [ВИЗУАЛ]: Базовые стили и Декор            */
-        /* ========================================= */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; user-select: none; }
-        body { background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; min-height: 100vh; padding: 10px; padding-bottom: 75px; }
-        .game-container { width: 100%; max-width: 450px; background: #1a1a1a; border-radius: 16px; padding: 20px; position: relative; display: flex; flex-direction: column; border: 1px solid #2c2c2c; }
         .hidden { display: none !important; }
-        h2, h3 { color: #ffc107; text-align: center; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* [ВИЗУАЛ]: Элементы форм (кнопки, селекты) */
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-size: 11px; color: #aaa; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
-        .btn-group { display: flex; gap: 6px; }
-        .btn-option { flex: 1; padding: 10px; background: #262626; border: 2px solid #363636; color: #ccc; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center;}
-        .btn-option.active { background: #3d3d3d; border-color: #ffc107; color: #fff; box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-        select, input[type="number"] { width: 100%; padding: 10px; background: #262626; border: 2px solid #363636; color: #fff; border-radius: 8px; outline: none; font-size: 14px; }
-
-        /* [ВИЗУАЛ]: Специфические стили для создания персонажа */
-        #creation-screen { display: flex; flex-direction: column; align-items: center; }
-        .btn-primary { width: 100%; padding: 14px; background: #ffc107; border: none; color: #121212; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: auto;}
-
-        /* [ВИЗУАЛ]: Генератор Pixel-Art Иконок (CSS) */
-        .preview-box { width: 96px; height: 96px; border-radius: 12px; border: 4px solid #363636; background: #000; margin-bottom: 15px; overflow: hidden; position: relative; }
-        .pixel-art-icon { width: 100%; height: 100%; image-rendering: pixelated; position: absolute; top: 0; left: 0; transition: background 0.2s ease; }
-        
-        /* Цвета Рас (Pixel background) */
-        .race-human { background: linear-gradient(to bottom right, #f5d7b5, #c68642); }
-        .race-cat { background: linear-gradient(to bottom right, #bf9b30, #734d26); }
-        .race-dog { background: linear-gradient(to bottom right, #d9d9d9, #595959); }
-        .race-lizard { background: linear-gradient(to bottom right, #4CAF50, #1b5e20); }
-        .race-kobold { background: linear-gradient(to bottom right, #FF5722, #8d2e13); }
-        .race-oni { background: linear-gradient(to bottom right, #E91E63, #880e4f); }
-        .race-elf { background: linear-gradient(to bottom right, #e0f7fa, #80cbc4); }
-
-        /* [ВИЗУАЛ]: Стили для Главного Меню */
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .nav-btn { width: 100%; padding: 20px; background: #262626; border: 2px solid #363636; color: #ffc107; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-btn:active { background: #333; }
+        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
+        .game-container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; }
+        .btn-option { padding: 10px; margin: 5px; cursor: pointer; }
+        .btn-option.active { background: #ffc107; }
+        .btn-primary { width: 100%; padding: 15px; background: #ffc107; border: none; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <div id="creation-screen">
-            <h2>Создание героя</h2>
-            
-            <div class="preview-box">
-                <div id="hero-pixel-icon" class="pixel-art-icon race-human"></div>
-            </div>
-
-            <div class="form-group" style="width: 100%;">
-                <label>Пол</label>
-                <div class="btn-group">
-                    <button id="gender-male" class="btn-option active" onclick="setGender('Мужчина')">Муж</button>
-                    <button id="gender-female" class="btn-option" onclick="setGender('Женщина')">Жен</button>
-                </div>
-            </div>
-
-            <div class="form-group" style="width: 100%;">
-                <label>Раса</label>
-                <select id="race-select" onchange="updateHero('race', this.value)">
-                    <option value="Человек" selected>Человек</option>
-                    <option value="Кошка">Зверолюд: Кошка</option>
-                    <option value="Собака">Зверолюд: Собака</option>
-                    <option value="Ящеролюд">Ящеролюд</option>
-                    <option value="Кобольд">Кобольд</option>
-                    <option value="Они">Они (Демон)</option>
-                    <option value="Эльф">Эльф</option>
-                </select>
-            </div>
-
-            <div class="form-group" style="width: 100%;">
-                <label>Класс пока что</label>
-                <select id="class-select" onchange="updateHero('heroClass', this.value)">
-                    <option value="Мечник" selected>Мечник</option>
-                    <option value="Лучник">Лучник</option>
-                    <option value="Маг">Маг</option>
-                </select>
-            </div>
-
-            <div class="form-group" style="width: 100%;">
-                <label>Возраст: <span id="age-val">25</span></label>
-                <input type="number" min="18" max="60" value="25" onchange="updateHero('age', this.value)">
-            </div>
-
-            <button class="btn-primary" onclick="startGame()">Отправиться в приключение</button>
+<div class="game-container">
+    <div id="creation-screen">
+        <h2>Создание героя</h2>
+        <div id="hero-pixel-icon" style="width: 100px; height: 100px; background: #555; margin: 10px auto;"></div>
+        
+        <label>Пол</label>
+        <div>
+            <button id="gender-male" class="btn-option active" onclick="setGender('Мужчина')">Муж</button>
+            <button id="gender-female" class="btn-option" onclick="setGender('Женщина')">Жен</button>
         </div>
 
-        <div id="game-main-screen" class="hidden">
-            <h2>Главное меню</h2>
-            <div class="menu-grid">
-                <button class="nav-btn">Локации</button>
-                <button class="nav-btn">Персонаж</button>
-                <button class="nav-btn">Гильдия</button>
-                <button class="nav-btn">Таверна</button>
-            </div>
-        </div>
+        <label>Раса</label>
+        <select id="race-select" onchange="updateHero('race', this.value)">
+            <option value="Человек">Человек</option>
+            <option value="Кошка">Кошка</option>
+            <option value="Эльф">Эльф</option>
+        </select>
+
+        <label>Класс</label>
+        <select id="class-select" onchange="updateHero('heroClass', this.value)">
+            <option value="Мечник">Мечник</option>
+            <option value="Лучник">Лучник</option>
+            <option value="Маг">Маг</option>
+        </select>
+
+        <div id="stats-preview" style="background: #333; padding: 10px; margin-top: 10px;"></div>
+
+        <button class="btn-primary" onclick="startGame()">Отправиться в приключение</button>
     </div>
 
+    <div id="game-main-screen" class="hidden">
+        <h2>Главное меню</h2>
+        <button>Локации</button>
+        <button>Персонаж</button>
+    </div>
+</div>
+
 <script>
-    /* ========================================= */
-    /* [ЯДРО]: Данные игры (State)               */
-    /* ========================================= */
     const gameState = {
         gender: 'Мужчина',
         race: 'Человек',
-        age: 25,
-        heroClass: 'Мечник', // Текущий выбранный класс
-
-        // Боевые характеристики (инициализируются при старте)
-        hp: 0, maxHp: 0,
-        energy: 0, maxEnergy: 0,
-        mp: 0, maxMp: 0,
-        fatigueMax: 0
+        heroClass: 'Мечник'
     };
 
-    /* ========================================= */
-    /* [БАЗА ДАННЫХ]: Характеристики (Stats)     */
-    /* ========================================= */
-    
-    // Базовые статы Расы
     const raceBaseStats = {
-        'Человек': { hp: 20, en: 50, mp: 20, fat: 100 },
-        'Кошка':   { hp: 15, en: 70, mp: 15, fat: 80 },
-        'Собака':  { hp: 25, en: 60, mp: 10, fat: 120 },
-        'Ящеролюд': { hp: 30, en: 40, mp: 5, fat: 150 },
-        'Кобольд': { hp: 12, en: 80, mp: 5, fat: 70 },
-        'Они':     { hp: 40, en: 40, mp: 40, fat: 200 },
-        'Эльф':    { hp: 15, en: 50, mp: 60, fat: 90 }
+        'Человек': { hp: 20, en: 50, mp: 20 },
+        'Кошка':   { hp: 15, en: 70, mp: 15 },
+        'Эльф':    { hp: 15, en: 50, mp: 60 }
     };
 
-    // Модификаторы Класса (добавляются к базе расы)
     const classStatsMod = {
         'Мечник': { hp: 15, en: 10, mp: 0 },
         'Лучник': { hp: 5, en: 20, mp: 5 },
         'Маг':    { hp: -5, en: -10, mp: 40 }
     };
 
-    // Справочник CSS-классов для иконок
-    const iconClasses = {
-        'Человек': 'race-human', 'Кошка': 'race-cat', 'Собака': 'race-dog', 'Ящеролюд': 'race-lizard', 'Кобольд': 'race-kobold', 'Они': 'race-oni', 'Эльф': 'race-elf'
-    };
-
-    /* ========================================= */
-    /* [МЕХАНИКА]: Управление созданием           */
-    /* ========================================= */
-
-    // Установка Пола (кнопки)
-    function setGender(gender) {
-        gameState.gender = gender;
-        // Переключение подсветки кнопок
-        if (gender === 'Мужчина') {
-            document.getElementById('gender-male').classList.add('active');
-            document.getElementById('gender-female').classList.remove('active');
-        } else {
-            document.getElementById('gender-male').classList.remove('active');
-            document.getElementById('gender-female').classList.add('active');
-        }
-        updateIcon();
-    }
-
-    // Универсальное обновление данных (Селекты/Возраст)
-    function updateHero(key, value) {
-        gameState[key] = value;
-        if (key === 'age') document.getElementById('age-val').innerText = value;
-        if (key === 'race') updateIcon();
-    }
-
-    // Обновление CSS Pixel-Art иконки
-    function updateIcon() {
-        const icon = document.getElementById('hero-pixel-icon');
-        // Сброс старых классов расы
-        icon.className = 'pixel-art-icon'; 
-        // Добавление нового класса расы
-        icon.classList.add(iconClasses[gameState.race]);
-        console.log(`Визуал: ${gameState.race}, ${gameState.gender}`);
-    }
-
-    /* ========================================= */
-    /* [МЕХАНИКА]: Расчет и старт игры          */
-    /* ========================================= */
-    function startGame() {
-        // 1. Расчет характеристик по формуле (База Расы + Мод Класса)
+    function updateStatsPreview() {
         const base = raceBaseStats[gameState.race];
         const mod = classStatsMod[gameState.heroClass];
+        const preview = document.getElementById('stats-preview');
+        preview.innerHTML = `Здоровье: ${base.hp + mod.hp} | Энергия: ${base.en + mod.en} | Мана: ${base.mp + mod.mp}`;
+    }
 
-        gameState.maxHp = base.hp + mod.hp;
-        gameState.maxEnergy = base.en + mod.en;
-        gameState.maxMp = base.mp + mod.mp;
-        gameState.fatigueMax = base.fat;
+    function setGender(g) {
+        gameState.gender = g;
+        document.getElementById('gender-male').classList.toggle('active', g === 'Мужчина');
+        document.getElementById('gender-female').classList.toggle('active', g === 'Женщина');
+    }
 
-        // Инициализация текущих значений
-        gameState.hp = gameState.maxHp;
-        gameState.energy = gameState.maxEnergy;
-        gameState.mp = gameState.maxMp;
+    function updateHero(key, val) {
+        gameState[key] = val;
+        updateStatsPreview();
+    }
 
-        // 2. Смена экрана
+    function startGame() {
         document.getElementById('creation-screen').classList.add('hidden');
         document.getElementById('game-main-screen').classList.remove('hidden');
-        
-        console.log("Персонаж создан и готов к приключениям:", gameState);
     }
+
+    // Запуск при старте
+    updateStatsPreview();
 </script>
+
 </body>
 </html>
