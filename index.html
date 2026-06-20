@@ -69,11 +69,19 @@
 <script>
     const gameState = { race: 'Человек', cls: 'Мечник', gender: 'Мужской' };
     const data = {
-        'Человек': { hp: 20, mp: 10, st: 50, icon: '👤' }, 'Зверолюд': { hp: 25, mp: 5, st: 70, icon: '🐾' },
-        'Эльф': { hp: 15, mp: 25, st: 50, icon: '🧝' }, 'Гном': { hp: 30, mp: 5, st: 60, icon: '⚒️' },
-        'Демон': { hp: 40, mp: 20, st: 80, icon: '👹' }, 'Ящеролюд': { hp: 35, mp: 5, st: 65, icon: '🦎' },
-        'Мечник': { modHp: 10, modMp: 0, modSt: 20 }, 'Стрелок': { modHp: 5, modMp: 5, modSt: 30 }, 'Маг': { modHp: -5, modMp: 20, modSt: 10 }
-    };
+    // Расы (Баланс: Сумма статов примерно равна 80-90)
+    'Человек':  { hp: 25, mp: 15, st: 50, icon: '👤' }, 
+    'Зверолюд': { hp: 25, mp: 5,  st: 70, icon: '🐾' }, 
+    'Эльф':     { hp: 15, mp: 40, st: 40, icon: '🧝' },
+    'Гном':     { hp: 40, mp: 5,  st: 40, icon: '⚒️' }, 
+    'Демон':    { hp: 35, mp: 30, st: 25, icon: '👹' }, 
+    'Ящеролюд': { hp: 35, mp: 5,  st: 50, icon: '🦎' },
+    
+    // Классы (Модификаторы должны помогать специализации)
+    'Мечник':  { modHp: 15, modMp: -5, modSt: 10 }, 
+    'Стрелок': { modHp: 5,  modMp: 0,  modSt: 25 }, 
+    'Маг':     { modHp: -10, modMp: 25, modSt: -5 }
+};
 
     function updateHero(key, val) {
         gameState[key] = val;
