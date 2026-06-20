@@ -4,98 +4,86 @@
     <meta charset="UTF-8">
     <title>Guild of Mercenaries</title>
     <style>
+        body { background: #121212; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .game-container { width: 100%; max-width: 400px; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; }
         .hidden { display: none !important; }
-        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
-        .game-container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; }
-        .btn-option { padding: 10px; margin: 5px; cursor: pointer; }
-        .btn-option.active { background: #ffc107; }
-        .btn-primary { width: 100%; padding: 15px; background: #ffc107; border: none; cursor: pointer; margin-top: 10px; }
+        .logo { font-size: 24px; color: #ffc107; text-align: center; margin-bottom: 20px; font-weight: bold; }
+        .preview-box { width: 150px; height: 150px; background: #222; margin: 0 auto 15px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .stats-box { background: #252525; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 14px; border-left: 4px solid #ffc107; }
+        select, input, button { width: 100%; padding: 10px; margin: 5px 0; background: #333; color: white; border: 1px solid #444; border-radius: 5px; }
+        .nav-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
     <div id="creation-screen">
-        <h2>Создание героя</h2>
-        <div id="hero-pixel-icon" style="width: 100px; height: 100px; background: #555; margin: 10px auto;"></div>
+        <div class="logo">GUILD OF MERCENARIES</div>
+        <div class="preview-box" id="hero-img">ВИЗУАЛ</div>
         
-        <label>Пол</label>
-        <div>
-            <button id="gender-male" class="btn-option active" onclick="setGender('Мужчина')">Муж</button>
-            <button id="gender-female" class="btn-option" onclick="setGender('Женщина')">Жен</button>
-        </div>
-
-        <label>Раса</label>
-        <select id="race-select" onchange="updateHero('race', this.value)">
-            <option value="Человек">Человек</option>
-            <option value="Кошка">Кошка</option>
-            <option value="Эльф">Эльф</option>
+        <label>Пол:</label>
+        <select onchange="updateHero('gender', this.value)">
+            <option value="Мужской">Мужской</option>
+            <option value="Женский">Женский</option>
         </select>
 
-        <label>Класс</label>
-        <select id="class-select" onchange="updateHero('heroClass', this.value)">
+        <label>Раса:</label>
+        <select id="race-select" onchange="updateHero('race', this.value)">
+            <option value="Человек">Человек</option>
+            <option value="Зверолюд">Зверолюд</option>
+            <option value="Эльф">Эльф</option>
+            <option value="Гном">Гном</option>
+            <option value="Демон">Демон</option>
+            <option value="Ящеролюд">Ящеролюд</option>
+        </select>
+
+        <label>Класс:</label>
+        <select id="class-select" onchange="updateHero('cls', this.value)">
             <option value="Мечник">Мечник</option>
-            <option value="Лучник">Лучник</option>
+            <option value="Стрелок">Стрелок</option>
             <option value="Маг">Маг</option>
         </select>
 
-        <div id="stats-preview" style="background: #333; padding: 10px; margin-top: 10px;"></div>
+        <label>Возраст:</label>
+        <input type="number" value="25" min="18" max="100" onchange="updateHero('age', this.value)">
 
-        <button class="btn-primary" onclick="startGame()">Отправиться в приключение</button>
+        <div class="stats-box" id="stats-display">Статистика...</div>
+        <button onclick="startGame()" style="background: #ffc107; color: #000; font-weight: bold;">НАЧАТЬ ПРИКЛЮЧЕНИЕ</button>
     </div>
 
-    <div id="game-main-screen" class="hidden">
-        <h2>Главное меню</h2>
-        <button>Локации</button>
-        <button>Персонаж</button>
+    <div id="lobby-screen" class="hidden">
+        <div class="logo">ЛОББИ</div>
+        <div class="nav-bar">
+            <button>Локации</button>
+            <button>Гильдия</button>
+            <button>Таверна</button>
+            <button>Персонаж</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const gameState = {
-        gender: 'Мужчина',
-        race: 'Человек',
-        heroClass: 'Мечник'
+    const gameState = { race: 'Человек', cls: 'Мечник', gender: 'Мужской', age: 25 };
+    const data = {
+        'Человек': { hp: 20, mp: 10 }, 'Зверолюд': { hp: 25, mp: 5 }, 'Эльф': { hp: 15, mp: 25 },
+        'Гном': { hp: 30, mp: 5 }, 'Демон': { hp: 40, mp: 20 }, 'Ящеролюд': { hp: 35, mp: 5 },
+        'Мечник': { modHp: 10, modMp: 0 }, 'Стрелок': { modHp: 5, modMp: 5 }, 'Маг': { modHp: -5, modMp: 20 }
     };
-
-    const raceBaseStats = {
-        'Человек': { hp: 20, en: 50, mp: 20 },
-        'Кошка':   { hp: 15, en: 70, mp: 15 },
-        'Эльф':    { hp: 15, en: 50, mp: 60 }
-    };
-
-    const classStatsMod = {
-        'Мечник': { hp: 15, en: 10, mp: 0 },
-        'Лучник': { hp: 5, en: 20, mp: 5 },
-        'Маг':    { hp: -5, en: -10, mp: 40 }
-    };
-
-    function updateStatsPreview() {
-        const base = raceBaseStats[gameState.race];
-        const mod = classStatsMod[gameState.heroClass];
-        const preview = document.getElementById('stats-preview');
-        preview.innerHTML = `Здоровье: ${base.hp + mod.hp} | Энергия: ${base.en + mod.en} | Мана: ${base.mp + mod.mp}`;
-    }
-
-    function setGender(g) {
-        gameState.gender = g;
-        document.getElementById('gender-male').classList.toggle('active', g === 'Мужчина');
-        document.getElementById('gender-female').classList.toggle('active', g === 'Женщина');
-    }
 
     function updateHero(key, val) {
         gameState[key] = val;
-        updateStatsPreview();
+        const r = data[gameState.race];
+        const c = data[gameState.cls];
+        document.getElementById('stats-display').innerHTML = `Здоровье: ${r.hp + c.modHp} | Мана: ${r.mp + c.modMp}`;
+        document.getElementById('hero-img').innerText = `${gameState.race} ${gameState.cls}`;
     }
 
     function startGame() {
         document.getElementById('creation-screen').classList.add('hidden');
-        document.getElementById('game-main-screen').classList.remove('hidden');
+        document.getElementById('lobby-screen').classList.remove('hidden');
     }
 
-    // Запуск при старте
-    updateStatsPreview();
+    updateHero(); // Инициализация статов при старте
 </script>
-
 </body>
 </html>
