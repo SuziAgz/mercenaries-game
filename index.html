@@ -4,78 +4,86 @@
     <meta charset="UTF-8">
     <title>Guild of Mercenaries</title>
     <style>
-        body { background: #121212; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .game-container { width: 100%; max-width: 400px; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; }
+        :root { --gold: #ffc107; --bg: #121212; --panel: #1e1e1e; }
+        body { background: var(--bg); color: #e0e0e0; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .game-container { width: 100%; max-width: 400px; background: var(--panel); padding: 25px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
-        .logo { font-size: 24px; color: #ffc107; text-align: center; margin-bottom: 20px; font-weight: bold; }
-        .preview-box { width: 150px; height: 150px; background: #222; margin: 0 auto 15px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .stats-box { background: #252525; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 14px; border-left: 4px solid #ffc107; }
-        select, input, button { width: 100%; padding: 10px; margin: 5px 0; background: #333; color: white; border: 1px solid #444; border-radius: 5px; }
-        .nav-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        
+        .logo { font-size: 28px; color: var(--gold); text-align: center; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,193,7,0.3); }
+        
+        .preview-box { width: 140px; height: 140px; background: #2a2a2a; margin: 0 auto 20px; border: 3px solid #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: inset 0 0 20px #000; }
+        
+        label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; margin-top: 10px; display: block; }
+        select, input, button { width: 100%; padding: 12px; margin: 8px 0; background: #252525; color: white; border: 1px solid #444; border-radius: 10px; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        
+        .stats-box { background: #181818; padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 5px solid var(--gold); display: grid; gap: 5px; }
+        .stat-line { display: flex; justify-content: space-between; font-weight: bold; }
+        
+        button { background: #333; border: none; font-weight: bold; }
+        button:hover { background: #444; }
+        .btn-start { background: var(--gold) !important; color: #000 !important; font-size: 16px; margin-top: 15px; }
+        
+        .nav-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .nav-btn { padding: 15px; background: #2a2a2a; border: 1px solid #444; border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
     <div id="creation-screen">
-        <div class="logo">GUILD OF MERCENARIES</div>
-        <div class="preview-box" id="hero-img">ВИЗУАЛ</div>
+        <div class="logo">Guild</div>
+        <div class="preview-box" id="hero-img">👤</div>
         
-        <label>Пол:</label>
+        <label>Пол</label>
         <select onchange="updateHero('gender', this.value)">
-            <option value="Мужской">Мужской</option>
-            <option value="Женский">Женский</option>
+            <option>Мужской</option><option>Женский</option>
         </select>
 
-        <label>Раса:</label>
+        <label>Раса</label>
         <select id="race-select" onchange="updateHero('race', this.value)">
-            <option value="Человек">Человек</option>
-            <option value="Зверолюд">Зверолюд</option>
-            <option value="Эльф">Эльф</option>
-            <option value="Гном">Гном</option>
-            <option value="Демон">Демон</option>
-            <option value="Ящеролюд">Ящеролюд</option>
+            <option>Человек</option><option>Зверолюд</option><option>Эльф</option>
+            <option>Гном</option><option>Демон</option><option>Ящеролюд</option>
         </select>
 
-        <label>Класс:</label>
-        <select id="class-select" onchange="updateHero('cls', this.value)">
-            <option value="Мечник">Мечник</option>
-            <option value="Стрелок">Стрелок</option>
-            <option value="Маг">Маг</option>
+        <label>Класс</label>
+        <select onchange="updateHero('cls', this.value)">
+            <option>Мечник</option><option>Стрелок</option><option>Маг</option>
         </select>
-
-        <label>Возраст:</label>
-        <input type="number" value="25" min="18" max="100" onchange="updateHero('age', this.value)">
 
         <div class="stats-box" id="stats-display">Статистика...</div>
-        <button onclick="startGame()" style="background: #ffc107; color: #000; font-weight: bold;">НАЧАТЬ ПРИКЛЮЧЕНИЕ</button>
+        
+        <button class="btn-start" onclick="startGame()">НАЧАТЬ ПРИКЛЮЧЕНИЕ</button>
     </div>
 
     <div id="lobby-screen" class="hidden">
-        <div class="logo">ЛОББИ</div>
+        <div class="logo">Лобби</div>
         <div class="nav-bar">
-            <button>Локации</button>
-            <button>Гильдия</button>
-            <button>Таверна</button>
-            <button>Персонаж</button>
+            <button class="nav-btn">🗺️ Локации</button>
+            <button class="nav-btn">⚔️ Гильдия</button>
+            <button class="nav-btn">🍺 Таверна</button>
+            <button class="nav-btn">👤 Персонаж</button>
         </div>
     </div>
 </div>
 
 <script>
-    const gameState = { race: 'Человек', cls: 'Мечник', gender: 'Мужской', age: 25 };
+    const gameState = { race: 'Человек', cls: 'Мечник', gender: 'Мужской' };
     const data = {
-        'Человек': { hp: 20, mp: 10 }, 'Зверолюд': { hp: 25, mp: 5 }, 'Эльф': { hp: 15, mp: 25 },
-        'Гном': { hp: 30, mp: 5 }, 'Демон': { hp: 40, mp: 20 }, 'Ящеролюд': { hp: 35, mp: 5 },
-        'Мечник': { modHp: 10, modMp: 0 }, 'Стрелок': { modHp: 5, modMp: 5 }, 'Маг': { modHp: -5, modMp: 20 }
+        'Человек': { hp: 20, mp: 10, st: 50, icon: '👤' }, 'Зверолюд': { hp: 25, mp: 5, st: 70, icon: '🐾' },
+        'Эльф': { hp: 15, mp: 25, st: 50, icon: '🧝' }, 'Гном': { hp: 30, mp: 5, st: 60, icon: '⚒️' },
+        'Демон': { hp: 40, mp: 20, st: 80, icon: '👹' }, 'Ящеролюд': { hp: 35, mp: 5, st: 65, icon: '🦎' },
+        'Мечник': { modHp: 10, modMp: 0, modSt: 20 }, 'Стрелок': { modHp: 5, modMp: 5, modSt: 30 }, 'Маг': { modHp: -5, modMp: 20, modSt: 10 }
     };
 
     function updateHero(key, val) {
         gameState[key] = val;
         const r = data[gameState.race];
         const c = data[gameState.cls];
-        document.getElementById('stats-display').innerHTML = `Здоровье: ${r.hp + c.modHp} | Мана: ${r.mp + c.modMp}`;
-        document.getElementById('hero-img').innerText = `${gameState.race} ${gameState.cls}`;
+        document.getElementById('stats-display').innerHTML = `
+            <div class="stat-line"><span>❤️ Здоровье:</span> <span>${r.hp + c.modHp}</span></div>
+            <div class="stat-line"><span>✨ Мана:</span> <span>${r.mp + c.modMp}</span></div>
+            <div class="stat-line"><span>⚡ Энергия:</span> <span>${r.st + c.modSt}</span></div>`;
+        document.getElementById('hero-img').innerText = r.icon;
     }
 
     function startGame() {
@@ -83,7 +91,7 @@
         document.getElementById('lobby-screen').classList.remove('hidden');
     }
 
-    updateHero(); // Инициализация статов при старте
+    updateHero();
 </script>
 </body>
 </html>
