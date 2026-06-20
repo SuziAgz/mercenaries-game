@@ -238,55 +238,75 @@
     </div>
 
     <script>
-        // Стартовые данные по умолчанию
-        let character = {
-            gender: 'Мужчина',
-            age: 25,
-            body: 'Жилистое',
-            heroClass: 'Воин',
-            clothing: 'Потёртый кожаный доспех'
-        };
+       // Базовый объект персонажа
+let character = {
+    gender: 'Мужчина',
+    age: 25,
+    body: 'Жилистое',
+    heroClass: 'Воин',
+    clothing: 'Потёртый кожаный доспех'
+};
 
-        // Логика выбора пола
-        function setGender(gender, element) {
-            character.gender = gender;
-            const buttons = element.parentNode.querySelectorAll('.btn-option');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        }
+// Функция, которая срабатывает САМОЙ ПЕРВОЙ при загрузке страницы
+window.onload = function() {
+    // Проверяем, есть ли уже сохранённый персонаж в памяти устройства
+    const savedChar = localStorage.getItem('mercenary_player');
+    
+    if (savedChar) {
+        // Если нашли — загружаем его данные
+        character = JSON.parse(savedChar);
+        // Заполняем карточку на главном экране
+        displayCharacterData();
+        // Сразу показываем игровой экран, скрывая создание
+        document.getElementById('creation-screen').classList.add('hidden');
+        document.getElementById('main-game-screen').classList.remove('hidden');
+    }
+};
 
-        // Обновление цифры возраста при движении ползунка
-        function updateAge(val) {
-            document.getElementById('age-val').innerText = val;
-            character.age = val;
-        }
+// Выбор пола в меню создания
+function setGender(gender, element) {
+    character.gender = gender;
+    const buttons = element.parentNode.querySelectorAll('.btn-option');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+}
 
-        // Запуск игры и перенос данных на главный экран
-        function startGame() {
-            // Считываем значения из селектов
-            character.body = document.getElementById('body-input').value;
-            character.heroClass = document.getElementById('class-input').value;
-            
-            // Назначаем одежду в зависимости от класса
-            if (character.heroClass === 'Воин') {
-                character.clothing = 'Потёртый кожаный доспех';
-            } else if (character.heroClass === 'Маг') {
-                character.clothing = 'Ученическая мантия';
-            } else if (character.heroClass === 'Лучник') {
-                character.clothing = 'Зелёный походный плащ';
-            }
+// Обновление ползунка возраста
+function updateAge(val) {
+    document.getElementById('age-val').innerText = val;
+    character.age = val;
+}
 
-            // Выводим данные на игровой экран
-            document.getElementById('char-gender').innerText = character.gender;
-            document.getElementById('char-age').innerText = character.age + ' лет';
-            document.getElementById('char-body').innerText = character.body;
-            document.getElementById('char-class').innerText = character.heroClass;
-            document.getElementById('char-cloth').innerText = character.clothing;
+// Заполнение текстовых полей на игровом экране
+function displayCharacterData() {
+    document.getElementById('char-gender').innerText = character.gender;
+    document.getElementById('char-age').innerText = character.age + ' лет';
+    document.getElementById('char-body').innerText = character.body;
+    document.getElementById('char-class').innerText = character.heroClass;
+    document.getElementById('char-cloth').innerText = character.clothing;
+}
 
-            // Переключаем экраны
-            document.getElementById('creation-screen').classList.add('hidden');
-            document.getElementById('main-game-screen').classList.remove('hidden');
-        }
+// Кнопка «Начать путь»
+function startGame() {
+    character.body = document.getElementById('body-input').value;
+    character.heroClass = document.getElementById('class-input').value;
+    
+    if (character.heroClass === 'Воин') {
+        character.clothing = 'Потёртый кожаный доспех';
+    } else if (character.heroClass === 'Маг') {
+        character.clothing = 'Ученическая мантия';
+    } else if (character.heroClass === 'Лучник') {
+        character.clothing = 'Зелёный походный плащ';
+    }
+
+    // Сохраняем персонажа в LocalStorage, превращая объект в строку
+    localStorage.setItem('mercenary_player', JSON.stringify(character));
+
+    // Отображаем и переключаем экран
+    displayCharacterData();
+    document.getElementById('creation-screen').classList.add('hidden');
+    document.getElementById('main-game-screen').classList.remove('hidden');
+}
     </script>
 </body>
 </html>
