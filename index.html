@@ -363,20 +363,23 @@
         </div>
 
         <div id="creation-screen">
+            <button class="btn-primary" onclick="startGame()">Создать наёмника</button>
             <h2>Guild of Mercenaries</h2>
             <h3 style="font-size: 14px; text-align:center; margin-top: -15px; color: #888;">Создание персонажа</h3>
             <div class="form-group">
                 <label>Пол наёмника</label>
                 <div class="btn-group">
-                    <button type="button" class="btn-option active" onclick="setGender('Мужчина', this)">Мужчина</button>
-                    <button type="button" class="btn-option" onclick="setGender('Женщина', this)">Женщина</button>
+    <button class="btn-option gender-btn active" onclick="setGender('Мужчина', this)">Мужчина</button>
+    <button class="btn-option gender-btn" onclick="setGender('Женщина', this)">Женщина</button>
+</div>
                 </div>
             </div>
             <div class="form-group">
                 <label>Возраст</label>
                 <div class="range-container">
-                    <input type="range" id="age-input" min="18" max="60" value="23" oninput="updateAge(this.value)">
-                    <div class="range-value" id="age-val">23</div>
+    <input type="range" min="18" max="60" value="25" oninput="updateAge(this.value)">
+    <div class="range-value" id="age-display">25</div>
+</div>
                 </div>
             </div>
             <div class="form-group">
@@ -600,6 +603,57 @@
             fatigue: 0,
             beerDrunkToday: 0,
             lastUpdate: null,
+
+            const gameState = {
+    heroGender: 'Мужчина',
+    age: 25,
+    heroClass: 'Warrior',
+    hp: 10, maxHp: 10,
+    energy: 100, maxEnergy: 100,
+    mp: 50, maxMp: 50,
+    fatigue: 0
+};
+
+function updateAge(val) {
+    gameState.age = val;
+    document.getElementById('age-display').innerText = val;
+}
+
+function setGender(gender, btnElement) {
+    function startGame() {
+    // 1. Инициализация целей для прокачки (наши формулы)
+    gameState.hpGoal = 25;
+    gameState.hpSpentAccumulator = 0;
+    
+    gameState.energyGoal = 120;
+    gameState.energySpentAccumulator = 0;
+    
+    gameState.manaGoal = 50;
+    gameState.manaSpentAccumulator = 0;
+
+    // 2. Установка начальных статов (на основе твоего кода классов)
+    if (gameState.heroClass === 'Warrior') {
+        gameState.maxHp = 12; gameState.maxEnergy = 40; gameState.maxMp = 10;
+    } else if (gameState.heroClass === 'Маг') {
+        gameState.maxHp = 8; gameState.maxEnergy = 20; gameState.maxMp = 60;
+    } else { // Hunter
+        gameState.maxHp = 10; gameState.maxEnergy = 35; gameState.maxMp = 15;
+    }
+
+    gameState.hp = gameState.maxHp;
+    gameState.energy = gameState.maxEnergy;
+    gameState.mp = gameState.maxMp;
+
+    // 3. Переход на экран игры (у тебя это, скорее всего, скрытие creation-screen)
+    document.getElementById('creation-screen').classList.add('hidden');
+    document.getElementById('game-main-screen').classList.remove('hidden');
+    
+    console.log("Игра начата с параметрами:", gameState);
+}
+    gameState.heroGender = gender;
+    document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+}
 
             // ЭВОЛЮЦИЯ МАГИИ И ЗАКЛИНАНИЙ
             mpSpentAccumulator: 0, 
