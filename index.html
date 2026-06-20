@@ -2,99 +2,291 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Guild of Mercenaries</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гильдия Наёмников</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
+        * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        h1 {
-            color: #ffcc00;
-            margin-bottom: 5px;
-        }
-        .balance-container {
-            background-color: #2a2a2a;
-            border: 2px solid #3a3a3a;
-            border-radius: 12px;
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 15px;
-            width: 90%;
-            max-width: 300px;
-            margin: 20px 0;
         }
-        .coin {
+
+        .game-container {
+            width: 100%;
+            max-width: 450px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            padding: 20px;
+            border: 1px solid #2d2d2d;
+        }
+
+        h1, h2 {
+            color: #ffc107;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Стили формы создания */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-option {
+            flex: 1;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 2px solid #3a3a3a;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: bold;
-            display: inline-block;
-            margin: 0 5px;
+            transition: all 0.2s ease;
         }
-        .btn {
-            background-color: #ffcc00;
-            color: #000;
-            border: none;
-            padding: 15px 30px;
+
+        .btn-option.active {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: #121212;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 2px solid #3a3a3a;
+            color: #fff;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-value {
             font-size: 18px;
+            font-weight: bold;
+            color: #ffc107;
+            min-width: 30px;
+        }
+
+        /* Главная кнопка */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #ffc107;
+            border: none;
+            color: #121212;
+            font-size: 16px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
-            width: 90%;
-            max-width: 300px;
+            margin-top: 10px;
+            transition: background 0.2s;
         }
-        .btn:active {
-            transform: scale(0.95);
+
+        .btn-primary:hover {
+            background: #e0a800;
+        }
+
+        /* Стили игрового экрана */
+        .character-card {
+            background: #252525;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .character-card p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .character-card span {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .wallet-box {
+            background: #252525;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .coin-list {
+            list-style: none;
+            margin-top: 10px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .coin-list li {
+            margin: 6px 0;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Гильдия Наёмников</h1>
-    <p id="welcome-text">Загрузка данных игрока...</p>
+    <div class="game-container">
+        
+        <!-- ЭКРАН 1: СОЗДАНИЕ ПЕРСОНАЖА -->
+        <div id="creation-screen">
+            <h2>Создание наёмника</h2>
+            
+            <!-- Пол -->
+            <div class="form-group">
+                <label>Пол</label>
+                <div class="btn-group">
+                    <button type="button" class="btn-option active" onclick="setGender('Мужчина', this)">Мужчина</button>
+                    <button type="button" class="btn-option" onclick="setGender('Женщина', this)">Женщина</button>
+                </div>
+            </div>
 
-    <div class="balance-container">
-        <h3>Твой кошель:</h3>
-        <div>🪙 Медь: <span id="copper-val" class="coin" style="color: #cd7f32;">10</span></div>
-        <div>🪙 Серебро: <span id="silver-val" class="coin" style="color: #c0c0c0;">0</span></div>
-        <div>🪙 Золото: <span id="gold-val" class="coin" style="color: #ffd700;">0</span></div>
-        <div>🪙 Платина: <span id="platinum-val" class="coin" style="color: #e5e4e2;">0</span></div>
+            <!-- Возраст -->
+            <div class="form-group">
+                <label>Возраст</label>
+                <div class="range-container">
+                    <input type="range" id="age-input" min="18" max="60" value="25" oninput="updateAge(this.value)">
+                    <div class="range-value" id="age-val">25</div>
+                </div>
+            </div>
+
+            <!-- Телосложение -->
+            <div class="form-group">
+                <label>Телосложение</label>
+                <select id="body-input">
+                    <option value="Жилистое">Жилистое (Выносливый)</option>
+                    <option value="Крепкое">Крепкое (Атлет)</option>
+                    <option value="Плотное">Плотное (Тяжеловес)</option>
+                    <option value="Худощавое">Худощавое (Юркий)</option>
+                </select>
+            </div>
+
+            <!-- Класс и стартовая одежда -->
+            <div class="form-group">
+                <label>Класс и экипировка</label>
+                <select id="class-input">
+                    <option value="Воин">Воин (Потёртый кожаный доспех)</option>
+                    <option value="Маг">Маг (Ученическая мантия)</option>
+                    <option value="Лучник">Лучник (Зелёный походный плащ)</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="startGame()">Начать путь</button>
+        </div>
+
+        <!-- ЭКРАН 2: ИГРОВОЙ ПРОЦЕСС -->
+        <div id="main-game-screen" class="hidden">
+            <h1>Гильдия Наёмников</h1>
+            
+            <!-- Карточка созданного персонажа -->
+            <div class="character-card">
+                <p>Наёмник: <span id="char-gender">─</span>, <span id="char-age">─</span></p>
+                <p>Телосложение: <span id="char-body">─</span></p>
+                <p>Класс: <span id="char-class">─</span></p>
+                <p>Одежда: <span id="char-cloth">─</span></p>
+            </div>
+
+            <div class="wallet-box">
+                <h3>Твой кошель:</h3>
+                <ul class="coin-list">
+                    <li>🪙 Медь: <span style="color:#ffc107">10</span></li>
+                    <li>🪙 Серебро: <span style="color:#fff">0</span></li>
+                    <li>🪙 Золото: <span style="color:#ffc107">0</span></li>
+                    <li>🪙 Платина: <span style="color:#fff">0</span></li>
+                </ul>
+            </div>
+
+            <button class="btn-primary">Собрать травы (Алхимия)</button>
+        </div>
+
     </div>
 
-    <button class="btn" id="action-btn">Собрать травы (Алхимия)</button>
-
     <script>
-        // Инициализируем Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем на весь экран
+        // Стартовые данные по умолчанию
+        let character = {
+            gender: 'Мужчина',
+            age: 25,
+            body: 'Жилистое',
+            heroClass: 'Воин',
+            clothing: 'Потёртый кожаный доспех'
+        };
 
-        // Получаем имя игрока из Телеграма
-        const username = tg.initDataUnsafe?.user?.first_name || "Наёмник";
-        document.getElementById('welcome-text').innerText = Приветствуем в Гильдии, ${username}!;
+        // Логика выбора пола
+        function setGender(gender, element) {
+            character.gender = gender;
+            const buttons = element.parentNode.querySelectorAll('.btn-option');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
 
-        // Базовая логика кликера для проверки
-        let copper = 10;
-        const copperEl = document.getElementById('copper-val');
-        const btn = document.getElementById('action-btn');
+        // Обновление цифры возраста при движении ползунка
+        function updateAge(val) {
+            document.getElementById('age-val').innerText = val;
+            character.age = val;
+        }
 
-        btn.addEventListener('click', () => {
-            copper += 1;
-            copperEl.innerText = copper;
+        // Запуск игры и перенос данных на главный экран
+        function startGame() {
+            // Считываем значения из селектов
+            character.body = document.getElementById('body-input').value;
+            character.heroClass = document.getElementById('class-input').value;
             
-            // Легкая вибрация телефона при клике для сочности (работает в ТГ)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
+            // Назначаем одежду в зависимости от класса
+            if (character.heroClass === 'Воин') {
+                character.clothing = 'Потёртый кожаный доспех';
+            } else if (character.heroClass === 'Маг') {
+                character.clothing = 'Ученическая мантия';
+            } else if (character.heroClass === 'Лучник') {
+                character.clothing = 'Зелёный походный плащ';
             }
-        });
+
+            // Выводим данные на игровой экран
+            document.getElementById('char-gender').innerText = character.gender;
+            document.getElementById('char-age').innerText = character.age + ' лет';
+            document.getElementById('char-body').innerText = character.body;
+            document.getElementById('char-class').innerText = character.heroClass;
+            document.getElementById('char-cloth').innerText = character.clothing;
+
+            // Переключаем экраны
+            document.getElementById('creation-screen').classList.add('hidden');
+            document.getElementById('main-game-screen').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
