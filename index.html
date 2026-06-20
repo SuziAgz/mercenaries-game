@@ -1200,6 +1200,350 @@
             saveGame();
         }
 
+        // --- Логика прокачки маны ---
+function trackMpUsage(amount) {
+    // Вводим пороги для увеличения MaxMP
+    // Формула: Next = Prev + 20 + (0.5 * Prev)
+    let currentGoal = gameState.manaLevelGoal || 50;
+    
+    gameState.mpSpentAccumulator += amount;
+    
+    while (gameState.mpSpentAccumulator >= currentGoal) {
+        gameState.mpSpentAccumulator -= currentGoal;
+        gameState.maxMp += 5; // Увеличиваем ману на 5 за каждый прорыв
+        gameState.mp += 5;
+        
+        // Пересчет следующей цели
+        let nextGoal = Math.floor(currentGoal + 20 + (currentGoal * 0.5));
+        gameState.manaLevelGoal = nextGoal;
+        
+        showToast(`🔮 Прорыв! Пул маны увеличен до ${gameState.maxMp}. Следующая цель: ${nextGoal} ед.`);
+    }
+}
+
+// --- Логика прокачки заклинаний (до 25 уровней) ---
+function advanceSpellLevel(spellId) {
+    const spell = gameState.spellLevels[spellId];
+    if (spell.lvl >= 25) return;
+
+    spell.casts++;
+    // Порог: 5 использований на уровень, но усложняется с каждым разом
+    let requiredCasts = 5 + (spell.lvl * 2); 
+
+    if (spell.casts >= requiredCasts) {
+        spell.casts = 0;
+        spell.lvl++;
+        
+        // Бонус каждые 5 уровней
+        if (spell.lvl % 5 === 0) {
+            showToast(`⭐ Мастерство: ${spellId.toUpperCase()} достигло ${spell.lvl} уровня! Открыт новый эффект!`);
+        } else {
+            showToast(`📈 ${spellId.toUpperCase()} теперь ${spell.lvl} уровня!`);
+        }
+    }
+}
+
+// --- Улучшенные формулы для интерфейса ---
+function getHealSpellData() {
+    const hLvl = gameState.spellLevels.heal.lvl;
+    // Стоимость маны плавно снижается до минимальных 3
+    let baseMp = 10;
+    let actualMp = Math.max(3, Math.floor(baseMp - (hLvl * 0.3)));
+    
+    // Эффективность растет значительно
+    let actualHp = Math.floor(2 * (1 + (hLvl * 0.4))); 
+    
+    return {
+        mp: actualMp,
+        hp: actualHp,
+        desc: `Ур.${hLvl}: Плата ${actualMp} MP | Лечит ${actualHp} HP. (${gameState.spellLevels.heal.casts}/${5 + (hLvl * 2)} ед.)`
+    };
+}
+
+        // Дополняем структуру состояния
+gameState.hpSpentAccumulator = 0;
+gameState.hpGoal = 50; 
+gameState.energySpentAccumulator = 0;
+gameState.energyGoal = 50;
+
+// Универсальная функция для прокачки статов
+function trackStatProgress(type, amount) {
+    let accumulator = type === 'hp' ? 'hpSpentAccumulator' : 'energySpentAccumulator';
+    let goal = type === 'hp' ? 'hpGoal' : 'energyGoal';
+    
+    gameState[accumulator] += amount;
+    
+    // Проверка порога для повышения уровня характеристики
+    while (gameState[accumulator] >= gameState[goal]) {
+        gameState[accumulator] -= gameState[goal];
+        
+        // Повышаем максимум
+        if (type === 'hp') { gameState.maxHp += 2; gameState.hp += 2; }
+        else { gameState.maxEnergy += 2; gameState.energy += 2; }
+        
+        // Усложняем следующий порог по той же формуле
+        let prevGoal = gameState[goal];
+        gameState[goal] = Math.floor(prevGoal + 20 + (prevGoal * 0.5));
+        
+        showToast(`💪 Ваш ${type.toUpperCase()} закалился! Новый максимум: ${type === 'hp' ? gameState.maxHp : gameState.maxEnergy}. Цель: ${gameState[goal]} ед.`);
+    }
+}
+
+        // Настройка начальных целей
+gameState.manaGoal = 50;
+gameState.hpGoal = 25;       // В 2 раза меньше маны
+gameState.energyGoal = 50;   // Как мана
+
+function trackStatProgress(type, amount) {
+    let accKey = type + 'SpentAccumulator';
+    let goalKey = type + 'Goal';
+
+    gameState[accKey] += amount;
+
+    while (gameState[accKey] >= gameState[goalKey]) {
+        gameState[accKey] -= gameState[goalKey];
+
+        // Повышение характеристик
+        if (type === 'hp') { 
+            gameState.maxHp += 2; 
+            gameState.hp += 2; 
+        } else if (type === 'energy') { 
+            gameState.maxEnergy += 2; 
+            gameState.energy += 2; 
+        } else if (type === 'mana') {
+            gameState.maxMp += 5; 
+            gameState.mp += 5;
+        }
+
+        // Пересчет сложности
+        let prevGoal = gameState[goalKey];
+        if (type === 'hp') {
+            // Для HP прогрессия более плавная: +10 и 25% прирост
+            gameState[goalKey] = Math.floor(prevGoal + 10 + (prevGoal * 0.25));
+        } else {
+            // Для маны и энергии: +20 и 50% прирост
+            gameState[goalKey] = Math.floor(prevGoal + 20 + (prevGoal * 0.5));
+        }
+
+        showToast(`🆙 Ваш ${type.toUpperCase()} вырос! Новый максимум: ${gameState['max' + type.charAt(0).toUpperCase() + type.slice(1)]}. Цель: ${gameState[goalKey]} ед.`);
+    }
+}
+
+        // Инициализация целей прогрессии в функции createCharacter
+function createCharacter() {
+    // ... ваш код создания персонажа ...
+
+    // Устанавливаем стартовые цели для прокачки
+    gameState.manaGoal = 50;
+    gameState.energyGoal = 120; // Твое пожелание: старт со 120
+    gameState.hpGoal = 25;
+
+    // ... остальной код ...
+}
+
+// Универсальная функция для прокачки статов с учетом разных формул
+function trackStatProgress(type, amount) {
+    let accKey = type + 'SpentAccumulator';
+    let goalKey = type + 'Goal';
+
+    gameState[accKey] += amount;
+
+    while (gameState[accKey] >= gameState[goalKey]) {
+        gameState[accKey] -= gameState[goalKey];
+
+        // Повышение Max значений
+        if (type === 'hp') { 
+            gameState.maxHp += 2; gameState.hp += 2; 
+        } else if (type === 'energy') { 
+            gameState.maxEnergy += 2; gameState.energy += 2; 
+        } else if (type === 'mana') {
+            gameState.maxMp += 5; gameState.mp += 5;
+        }
+
+        // Пересчет сложности (формулы)
+        let prevGoal = gameState[goalKey];
+        if (type === 'hp') {
+            // HP: +10 и 25% прирост
+            gameState[goalKey] = Math.floor(prevGoal + 10 + (prevGoal * 0.25));
+        } else {
+            // Мана и Энергия: +20 и 50% прирост
+            gameState[goalKey] = Math.floor(prevGoal + 20 + (prevGoal * 0.5));
+        }
+
+        showToast(`🆙 ${type.toUpperCase()} закален! Цель повышена до ${gameState[goalKey]} ед.`);
+    }
+}
+
+        // --- Инициализация таймеров восстановления ---
+gameState.recoveryTimers = {
+    mana: { accumulatedSeconds: 0, targetSeconds: 480 }, // 8 минут = 480 секунд
+    hp: { accumulatedSeconds: 0, targetSeconds: 300 },   // Допустим, 5 минут
+    energy: { accumulatedSeconds: 0, targetSeconds: 120 } // Допустим, 2 минуты
+};
+
+// --- Функция обновления (вызывается в gameLoop каждую секунду) ---
+function updateRecovery() {
+    // Проверка наличия еды (предположим, gameState.food > 0)
+    if (gameState.food > 0) {
+        
+        // Мана (восстановление 1 ед. в 8 мин)
+        if (gameState.mp < gameState.maxMp) {
+            gameState.recoveryTimers.mana.accumulatedSeconds++;
+            if (gameState.recoveryTimers.mana.accumulatedSeconds >= 480) {
+                gameState.mp++;
+                gameState.recoveryTimers.mana.accumulatedSeconds = 0;
+            }
+        }
+        
+        // Аналогично для HP и Энергии, если нужно
+    }
+}
+
+// --- Отображение в UI ---
+function renderUI() {
+    const manaTimer = 480 - gameState.recoveryTimers.mana.accumulatedSeconds;
+    
+    // Формируем строку для отображения под баром
+    const manaProgress = `${gameState.manaSpentAccumulator}/${gameState.manaGoal}`;
+    const manaRecoveryText = gameState.food > 0 
+        ? `Восст. через: ${Math.floor(manaTimer / 60)}м ${manaTimer % 60}с` 
+        : "⚠️ Нет еды для восст.";
+
+    document.getElementById('mana-ui').innerHTML = `
+        <div class="bar-container">
+            <div class="bar" style="width: ${(gameState.mp / gameState.maxMp) * 100}%"></div>
+        </div>
+        <div class="stats-footer">
+            <span>Прогресс: ${manaProgress}</span>
+            <span>${manaRecoveryText}</span>
+        </div>
+    `;
+}
+
+        // Добавляем в состояние, какой именно бар сейчас показывает опыт
+gameState.activeExpBar = null; // 'mana', 'hp' или 'energy'
+
+function handleBarClick(statType) {
+    // Включаем отображение опыта
+    gameState.activeExpBar = statType;
+    
+    // Через 2 секунды возвращаем обычный вид
+    setTimeout(() => {
+        gameState.activeExpBar = null;
+        renderUI(); // Перерисовываем интерфейс
+    }, 2000);
+    
+    renderUI();
+}
+
+// Обновленная функция отрисовки UI
+function renderUI() {
+    ['mana', 'hp', 'energy'].forEach(type => {
+        const isExpMode = gameState.activeExpBar === type;
+        const currentVal = isExpMode ? gameState[type + 'SpentAccumulator'] : gameState[type];
+        const maxVal = isExpMode ? gameState[type + 'Goal'] : gameState['max' + type.charAt(0).toUpperCase() + type.slice(1)];
+        
+        // Цвет бара меняется, если мы в режиме просмотра опыта (например, на золотой)
+        const barColor = isExpMode ? '#FFD700' : '#4CAF50'; 
+        
+        document.getElementById(`${type}-bar`).style.width = `${(currentVal / maxVal) * 100}%`;
+        document.getElementById(`${type}-bar`).style.backgroundColor = barColor;
+        document.getElementById(`${type}-text`).innerText = `${currentVal} / ${maxVal}`;
+    });
+}
+
+        /* Базовый стиль для пустой части бара */
+.bar-container {
+    background-color: #d2b48c; /* Тот самый «песчаный» цвет для пустого пространства */
+    width: 100%;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Динамический стиль */
+.bar {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+        // Функция отрисовки бара
+function renderBar(type, current, max, isExpMode, exp, goal) {
+    const bar = document.getElementById(`${type}-bar`);
+    const text = document.getElementById(`${type}-text`);
+    
+    // Определяем цвета
+    const colors = {
+        hp: '#ff4d4d',     // Красный
+        energy: '#ffeb3b', // Ярко-желтый
+        mana: '#2196f3',   // Синий
+        fatigue: '#9c27b0' // Фиолетовый (Усталость)
+    };
+
+    let displayVal = isExpMode ? exp : current;
+    let displayMax = isExpMode ? goal : max;
+    let percentage = (displayVal / displayMax) * 100;
+
+    bar.style.width = percentage + '%';
+    bar.style.backgroundColor = isExpMode ? '#FFD700' : colors[type];
+    text.innerText = `${displayVal} / ${displayMax}`;
+}
+
+        function renderBar(type, current, max, isExpMode, exp, goal) {
+    const bar = document.getElementById(`${type}-bar`);
+    const text = document.getElementById(`${type}-text`);
+    
+    // Цвета для обычного режима
+    const colors = {
+        hp: '#ff4d4d',     // Красный
+        energy: '#ffeb3b', // Ярко-желтый
+        mana: '#2196f3',   // Синий
+        fatigue: '#9c27b0' // Фиолетовый
+    };
+
+    let percentage;
+    if (isExpMode) {
+        // Режим опыта: визуализируем заполнение 
+        // Создаем эффект градиента: зеленый до exp, песочный дальше
+        percentage = (exp / goal) * 100;
+        bar.style.background = `linear-gradient(to right, #4CAF50 ${percentage}%, #d2b48c ${percentage}%)`;
+        text.innerText = `${exp} / ${goal} опыта`;
+    } else {
+        // Обычный режим
+        percentage = (current / max) * 100;
+        bar.style.background = colors[type]; // Однотонный цвет
+        bar.style.width = percentage + '%';
+        text.innerText = `${current} / ${max}`;
+    }
+    
+    // Применяем ширину для обычного режима
+    if (!isExpMode) bar.style.width = percentage + '%';
+}
+
+        function performAction(actionType, energyCost) {
+    // 1. Проверяем уровень усталости
+    if (gameState.fatigue >= 100) {
+        energyCost += 5; // Штраф за изнурение
+        showToast("⚠️ Персонаж изнурен! Действие требует больше энергии.");
+    }
+
+    // 2. Расход энергии
+    if (gameState.energy >= energyCost) {
+        gameState.energy -= energyCost;
+        
+        // 3. Увеличение усталости
+        gameState.fatigue = Math.min(100, gameState.fatigue + 5);
+        
+        // 4. Прогресс выносливости (как договаривались)
+        trackStatProgress('energy', energyCost);
+        
+        renderUI();
+    } else {
+        showToast("❌ Недостаточно энергии!");
+    }
+}
+
+        
         /* ТАВЕРНА: ИНТЕРФЕЙС СКЛАДА */
         function renderTavernStorage() {
             document.getElementById('tavern-bag-w').innerText = calculateTotalWeight(gameState.inventory);
