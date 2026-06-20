@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Guild of Mercenaries - New Start</title>
+    <style>
+        /* Стили оставим твои, они отличные. Добавим только скрытие экранов */
+        .hidden { display: none !important; }
+        body { background: #121212; color: #eee; font-family: sans-serif; }
+    </style>
+</head>
+<body>
 
+    <div class="game-container" id="game">
+        <div id="creation-screen">
+            <h2>Создание наемника</h2>
+            <div class="form-group">
+                <label>Пол</label>
+                <div class="btn-group">
+                    <button class="btn-option" onclick="setGender('Мужчина', this)">Мужчина</button>
+                    <button class="btn-option" onclick="setGender('Женщина', this)">Женщина</button>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="startGame()">Создать наемника</button>
+        </div>
+
+        <div id="game-main-screen" class="hidden">
+            <h2>Гильдия</h2>
+            <p>Добро пожаловать, наемник!</p>
+        </div>
+    </div>
+
+<script>
+    /* [ЯДРО]: Данные игры */
+    const gameState = {
+        heroGender: 'Мужчина',
+        currentScreen: 'creation-screen'
+    };
+
+    /* [МЕХАНИКА]: Выбор пола */
+    function setGender(gender, btnElement) {
+        gameState.heroGender = gender;
+        // Убираем актив у всех, ставим одной
+        document.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        console.log("Выбран пол:", gameState.heroGender);
+    }
+
+    /* [МЕХАНИКА]: Старт игры */
+    function startGame() {
+        // Смена экрана
+        document.getElementById('creation-screen').classList.add('hidden');
+        document.getElementById('game-main-screen').classList.remove('hidden');
+        gameState.currentScreen = 'game-main';
+        console.log("Игра запущена!");
+    }
+</script>
+</body>
+</html>
